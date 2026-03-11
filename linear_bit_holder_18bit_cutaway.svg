@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1698" height="466" viewBox="0 0 1698 466">
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#1f2937"/></marker>
+</defs>
+<rect x="80.00" y="70.00" width="1337.60" height="156.00" rx="16.00" ry="16.00" fill="#d9dde3" stroke="#111827" stroke-width="1.5"/>
+<polygon points="92.80,70.00 153.60,70.00 153.60,198.00 147.60,204.40 147.60,222.80 98.80,222.80 98.80,204.40 92.80,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="166.40,70.00 227.20,70.00 227.20,198.00 221.20,204.40 221.20,222.80 172.40,222.80 172.40,204.40 166.40,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="240.00,70.00 300.80,70.00 300.80,198.00 294.80,204.40 294.80,222.80 246.00,222.80 246.00,204.40 240.00,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="313.60,70.00 374.40,70.00 374.40,198.00 368.40,204.40 368.40,222.80 319.60,222.80 319.60,204.40 313.60,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="387.20,70.00 448.00,70.00 448.00,198.00 442.00,204.40 442.00,222.80 393.20,222.80 393.20,204.40 387.20,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="460.80,70.00 521.60,70.00 521.60,198.00 515.60,204.40 515.60,222.80 466.80,222.80 466.80,204.40 460.80,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="534.40,70.00 595.20,70.00 595.20,198.00 589.20,204.40 589.20,222.80 540.40,222.80 540.40,204.40 534.40,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="608.00,70.00 668.80,70.00 668.80,198.00 662.80,204.40 662.80,222.80 614.00,222.80 614.00,204.40 608.00,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="681.60,70.00 742.40,70.00 742.40,198.00 736.40,204.40 736.40,222.80 687.60,222.80 687.60,204.40 681.60,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="755.20,70.00 816.00,70.00 816.00,198.00 810.00,204.40 810.00,222.80 761.20,222.80 761.20,204.40 755.20,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="828.80,70.00 889.60,70.00 889.60,198.00 883.60,204.40 883.60,222.80 834.80,222.80 834.80,204.40 828.80,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="902.40,70.00 963.20,70.00 963.20,198.00 957.20,204.40 957.20,222.80 908.40,222.80 908.40,204.40 902.40,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="976.00,70.00 1036.80,70.00 1036.80,198.00 1030.80,204.40 1030.80,222.80 982.00,222.80 982.00,204.40 976.00,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="1049.60,70.00 1110.40,70.00 1110.40,198.00 1104.40,204.40 1104.40,222.80 1055.60,222.80 1055.60,204.40 1049.60,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="1123.20,70.00 1184.00,70.00 1184.00,198.00 1178.00,204.40 1178.00,222.80 1129.20,222.80 1129.20,204.40 1123.20,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="1196.80,70.00 1257.60,70.00 1257.60,198.00 1251.60,204.40 1251.60,222.80 1202.80,222.80 1202.80,204.40 1196.80,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="1270.40,70.00 1331.20,70.00 1331.20,198.00 1325.20,204.40 1325.20,222.80 1276.40,222.80 1276.40,204.40 1270.40,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<polygon points="1344.00,70.00 1404.80,70.00 1404.80,198.00 1398.80,204.40 1398.80,222.80 1350.00,222.80 1350.00,204.40 1344.00,198.00" fill="#ffffff" stroke="#111827" stroke-width="1.0"/>
+<line x1="80.00" y1="346.00" x2="1417.60" y2="346.00" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="80.00" y1="226.00" x2="80.00" y2="346.00" stroke="#6b7280" stroke-width="1"/>
+<line x1="1417.60" y1="226.00" x2="1417.60" y2="346.00" stroke="#6b7280" stroke-width="1"/>
+<text x="748.80" y="338.00" text-anchor="middle" font-size="13" fill="#111827">Overall length 167.20 mm</text>
+<line x1="1487.60" y1="226.00" x2="1487.60" y2="70.00" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="1417.60" y1="226.00" x2="1487.60" y2="226.00" stroke="#6b7280" stroke-width="1"/>
+<line x1="1417.60" y1="70.00" x2="1487.60" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<text x="1495.60" y="148.00" font-size="13" fill="#111827">Overall height 19.50 mm</text>
+<line x1="92.80" y1="42.00" x2="153.60" y2="42.00" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="92.80" y1="42.00" x2="92.80" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<line x1="153.60" y1="42.00" x2="153.60" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<text x="123.20" y="34.00" text-anchor="middle" font-size="13" fill="#111827">Bit cavity OD 7.60 mm</text>
+<line x1="742.40" y1="-14.00" x2="755.20" y2="-14.00" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="742.40" y1="-14.00" x2="742.40" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<line x1="755.20" y1="-14.00" x2="755.20" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<text x="748.80" y="-22.00" text-anchor="middle" font-size="13" fill="#111827">Between cavities 1.60 mm</text>
+<line x1="64.80" y1="70.00" x2="64.80" y2="198.00" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="64.80" y1="70.00" x2="92.80" y2="70.00" stroke="#6b7280" stroke-width="1"/>
+<line x1="64.80" y1="198.00" x2="92.80" y2="198.00" stroke="#6b7280" stroke-width="1"/>
+<text x="58.80" y="134.00" text-anchor="end" font-size="13" fill="#111827">Bit depth 16.00 mm</text>
+<line x1="687.60" y1="222.40" x2="736.40" y2="222.40" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="687.60" y1="222.40" x2="687.60" y2="204.40" stroke="#6b7280" stroke-width="1"/>
+<line x1="736.40" y1="222.40" x2="736.40" y2="204.40" stroke="#6b7280" stroke-width="1"/>
+<line x1="641.60" y1="286.00" x2="712.00" y2="222.40" stroke="#1f2937" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="511.60" y="290.00" font-size="13" fill="#111827">Magnet hole OD 6.10 mm</text>
+<line x1="760.40" y1="204.40" x2="760.40" y2="222.80" stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<line x1="736.40" y1="204.40" x2="760.40" y2="204.40" stroke="#6b7280" stroke-width="1"/>
+<line x1="736.40" y1="222.80" x2="760.40" y2="222.80" stroke="#6b7280" stroke-width="1"/>
+<line x1="677.40" y1="308.00" x2="760.40" y2="213.60" stroke="#1f2937" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="552.40" y="312.00" font-size="13" fill="#111827">Magnet depth 2.30 mm</text>
+<line x1="1435.60" y1="46.00" x2="1412.00" y2="70.80" stroke="#1f2937" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="1435.60" y="42.00" font-size="13" fill="#111827">Outer edge radius R2.00 mm</text>
+</svg>

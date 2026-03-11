@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -24,7 +24,7 @@ from build123d import (
 @dataclass
 class BitHolderParams:
     # Count and core hole geometry
-    bit_count: int = 10
+    bit_count: int = 20
     bit_cavity_diameter: float = 7.6
     bit_cavity_depth: float = 16.0
 
@@ -398,30 +398,35 @@ def export_cutaway_jpg(svg_path: str, jpg_path: str) -> None:
 
 
 if __name__ == "__main__":
-    p = BitHolderParams()
-    part = build_linear_bit_holder(p)
-    export_stl(part, "linear_bit_holder_10bit.stl")
-    export_step(part, "linear_bit_holder_10bit.step")
-    export_cutaway_svg(p, "linear_bit_holder_10bit_cutaway.svg")
-    export_cutaway_jpg(
-        "linear_bit_holder_10bit_cutaway.svg",
-        "linear_bit_holder_10bit_cutaway.jpg",
-    )
+    base = BitHolderParams()
+    for bit_count in range(10, 31, 2):
+        p = replace(base, bit_count=bit_count)
+        part = build_linear_bit_holder(p)
+        stem = f"linear_bit_holder_{bit_count}bit"
+        stl_path = f"{stem}.stl"
+        step_path = f"{stem}.step"
+        svg_path = f"{stem}_cutaway.svg"
+        jpg_path = f"{stem}_cutaway.jpg"
 
-    center_spacing = p.bit_cavity_diameter + p.spacing_between_hole_ods
-    length = (
-        2 * p.end_wall_thickness
-        + p.bit_count * p.bit_cavity_diameter
-        + (p.bit_count - 1) * p.spacing_between_hole_ods
-    )
-    width = p.bit_cavity_diameter + 2 * p.side_wall_thickness
-    height = p.bit_cavity_depth + p.magnet_pocket_depth + p.bottom_floor_thickness
+        export_stl(part, stl_path)
+        export_step(part, step_path)
+        export_cutaway_svg(p, svg_path)
+        export_cutaway_jpg(svg_path, jpg_path)
 
-    print("Linear bit holder generated:")
-    print(f"- bit_count: {p.bit_count}")
-    print(f"- center_spacing: {center_spacing:.3f} mm")
-    print(f"- overall L x W x H: {length:.3f} x {width:.3f} x {height:.3f} mm")
-    print("- STL exported to: linear_bit_holder_10bit.stl")
-    print("- STEP exported to: linear_bit_holder_10bit.step")
-    print("- 2D cutaway exported to: linear_bit_holder_10bit_cutaway.svg")
-    print("- 2D cutaway exported to: linear_bit_holder_10bit_cutaway.jpg")
+        center_spacing = p.bit_cavity_diameter + p.spacing_between_hole_ods
+        length = (
+            2 * p.end_wall_thickness
+            + p.bit_count * p.bit_cavity_diameter
+            + (p.bit_count - 1) * p.spacing_between_hole_ods
+        )
+        width = p.bit_cavity_diameter + 2 * p.side_wall_thickness
+        height = p.bit_cavity_depth + p.magnet_pocket_depth + p.bottom_floor_thickness
+
+        print("Linear bit holder generated:")
+        print(f"- bit_count: {p.bit_count}")
+        print(f"- center_spacing: {center_spacing:.3f} mm")
+        print(f"- overall L x W x H: {length:.3f} x {width:.3f} x {height:.3f} mm")
+        print(f"- STL exported to: {stl_path}")
+        print(f"- STEP exported to: {step_path}")
+        print(f"- 2D cutaway exported to: {svg_path}")
+        print(f"- 2D cutaway exported to: {jpg_path}")
