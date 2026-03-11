@@ -1,0 +1,20 @@
+# Python cache/bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build/tool caches
+.mypy_cache/
+.pytest_cache/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Generated CAD outputs (uncomment if you do not want to track them)
+# *.stl
+# *.step
