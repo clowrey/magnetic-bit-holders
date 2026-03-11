@@ -4,6 +4,8 @@ Parametric linear 1/4 in bit holder generator.
 
 Designed for `6x3 mm` neodymium magnets: each cavity includes a magnet pocket and entry bevel so magnets can be press-fit after printing, using a 1/4 in bit (or similar blunt tool) to push each magnet to final depth.
 
+License: GNU GPL v3.0 (see `LICENSE`).
+
 ## Quick Use
 
 1. Edit values in `BitHolderParams` inside `linear_bit_holder.py`.
