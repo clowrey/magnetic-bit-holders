@@ -30,7 +30,7 @@ class BitHolderParams:
 
     # Magnet pocket geometry (for nominal 6x3 mm magnets)
     magnet_pocket_diameter: float = 6.1
-    magnet_pocket_depth: float = 3.6
+    magnet_pocket_depth: float = 3.1
     magnet_bevel_depth: float = 0.8  # visible taper from 7.6 to 6.1
 
     # Floor thickness under magnet pocket (2 layers at 0.2 mm)
@@ -331,7 +331,7 @@ def export_cutaway_svg(params: BitHolderParams, out_path: str) -> None:
 
     # Dimension: magnet hole depth on middle cavity
     x_mdep = sx(x_mid + r_mag) + 24
-    y_mtop = sy(z_floor)
+    y_mtop = sy(z_bevel_bottom)
     y_mbot = sy(z_mag_bottom)
     lines.append(f'<line x1="{x_mdep:.2f}" y1="{y_mtop:.2f}" x2="{x_mdep:.2f}" y2="{y_mbot:.2f}" '
                  'stroke="#1f2937" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>')
@@ -346,7 +346,7 @@ def export_cutaway_svg(params: BitHolderParams, out_path: str) -> None:
     )
     lines.append(
         f'<text x="{x_md_label:.2f}" y="{y_md_label:.2f}" '
-        f'font-size="13" fill="#111827">Magnet depth {params.magnet_pocket_depth:.2f} mm</text>'
+        f'font-size="13" fill="#111827">Magnet depth {params.magnet_pocket_depth - params.magnet_bevel_depth:.2f} mm</text>'
     )
 
     # Dimension: outer edge radius leader
