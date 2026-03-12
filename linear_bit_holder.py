@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from tkinter import TRUE
 
 from build123d import (
     Align,
@@ -28,7 +29,7 @@ from build123d import (
 
 # Build toggles
 BUILD_SINGLE_10_BIT = True
-BUILD_BATCH_10_TO_30 = False
+BUILD_BATCH_10_TO_30 = True
 BUILD_METRIC_LABELED = True
 BUILD_ENGLISH_LABELED = True
 BUILD_METRIC_DOUBLEBACK_LABELED = True
@@ -631,6 +632,12 @@ def export_cutaway_jpg(svg_path: str, jpg_path: str) -> None:
 
 
 if __name__ == "__main__":
+    output_dir = Path("exports")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    def out_path(filename: str) -> str:
+        return str(output_dir / filename)
+
     base = BitHolderParams()
     standard_counts: list[int] = []
     if BUILD_SINGLE_10_BIT:
@@ -642,10 +649,10 @@ if __name__ == "__main__":
         p = replace(base, bit_count=bit_count)
         part = build_linear_bit_holder(p)
         stem = f"linear_bit_holder_{bit_count}bit"
-        stl_path = f"{stem}.stl"
-        step_path = f"{stem}.step"
-        svg_path = f"{stem}_cutaway.svg"
-        jpg_path = f"{stem}_cutaway.jpg"
+        stl_path = out_path(f"{stem}.stl")
+        step_path = out_path(f"{stem}.step")
+        svg_path = out_path(f"{stem}_cutaway.svg")
+        jpg_path = out_path(f"{stem}_cutaway.jpg")
 
         export_stl(part, stl_path)
         export_step(part, step_path)
@@ -688,13 +695,15 @@ if __name__ == "__main__":
         metric_part = build_linear_bit_holder(metric_params)
         metric_labeled = add_side_debossed_labels(metric_part, metric_params, metric_hex_labels)
         metric_stem = "linear_bit_holder_11bit_metric_hex_labeled"
-        export_stl(metric_labeled, f"{metric_stem}.stl")
-        export_step(metric_labeled, f"{metric_stem}.step")
+        metric_stl = out_path(f"{metric_stem}.stl")
+        metric_step = out_path(f"{metric_stem}.step")
+        export_stl(metric_labeled, metric_stl)
+        export_step(metric_labeled, metric_step)
         print("Metric labeled variant generated:")
         print(f"- bit_count: {metric_params.bit_count}")
         print(f"- side labels: {', '.join(metric_hex_labels)}")
-        print(f"- STL exported to: {metric_stem}.stl")
-        print(f"- STEP exported to: {metric_stem}.step")
+        print(f"- STL exported to: {metric_stl}")
+        print(f"- STEP exported to: {metric_step}")
 
     english_hex_labels = [
         "5/64",
@@ -723,14 +732,16 @@ if __name__ == "__main__":
             english_part, english_params, english_hex_labels
         )
         english_stem = "linear_bit_holder_10bit_english_hex_labeled"
-        export_stl(english_labeled, f"{english_stem}.stl")
-        export_step(english_labeled, f"{english_stem}.step")
+        english_stl = out_path(f"{english_stem}.stl")
+        english_step = out_path(f"{english_stem}.step")
+        export_stl(english_labeled, english_stl)
+        export_step(english_labeled, english_step)
         print("English labeled variant generated:")
         print(f"- bit_count: {english_params.bit_count}")
         print(f"- fitted label font size: {english_params.side_label_font_size}")
         print(f"- side labels: {', '.join(english_hex_labels)}")
-        print(f"- STL exported to: {english_stem}.stl")
-        print(f"- STEP exported to: {english_stem}.step")
+        print(f"- STL exported to: {english_stl}")
+        print(f"- STEP exported to: {english_step}")
 
     if BUILD_METRIC_DOUBLEBACK_LABELED:
         # Assumes common metric progression and adds 10 mm as the 12th size.
@@ -773,14 +784,16 @@ if __name__ == "__main__":
             side=-1,
         )
         doubleback_stem = "linear_bit_holder_12bit_metric_hex_doubleback_labeled"
-        export_stl(doubleback_labeled, f"{doubleback_stem}.stl")
-        export_step(doubleback_labeled, f"{doubleback_stem}.step")
+        doubleback_stl = out_path(f"{doubleback_stem}.stl")
+        doubleback_step = out_path(f"{doubleback_stem}.step")
+        export_stl(doubleback_labeled, doubleback_stl)
+        export_step(doubleback_labeled, doubleback_step)
         print("Metric double-back labeled variant generated:")
         print("- layout: 2 rows x 6 columns (12 total)")
         print(f"- +Y side labels: {', '.join(side_a_labels)}")
         print(f"- -Y side labels: {', '.join(side_b_labels)}")
-        print(f"- STL exported to: {doubleback_stem}.stl")
-        print(f"- STEP exported to: {doubleback_stem}.step")
+        print(f"- STL exported to: {doubleback_stl}")
+        print(f"- STEP exported to: {doubleback_step}")
 
     if BUILD_ENGLISH_DOUBLEBACK_LABELED:
         english_doubleback_labels = [
@@ -832,12 +845,14 @@ if __name__ == "__main__":
             side=-1,
         )
         english_db_stem = "linear_bit_holder_10bit_english_hex_doubleback_labeled"
-        export_stl(english_db_labeled, f"{english_db_stem}.stl")
-        export_step(english_db_labeled, f"{english_db_stem}.step")
+        english_db_stl = out_path(f"{english_db_stem}.stl")
+        english_db_step = out_path(f"{english_db_stem}.step")
+        export_stl(english_db_labeled, english_db_stl)
+        export_step(english_db_labeled, english_db_step)
         print("English double-back labeled variant generated:")
         print("- layout: 2 rows x 5 columns (10 total)")
         print(f"- fitted label font size: {english_db_params.side_label_font_size}")
         print(f"- +Y side labels: {', '.join(side_a_labels)}")
         print(f"- -Y side labels: {', '.join(side_b_labels)}")
-        print(f"- STL exported to: {english_db_stem}.stl")
-        print(f"- STEP exported to: {english_db_stem}.step")
+        print(f"- STL exported to: {english_db_stl}")
+        print(f"- STEP exported to: {english_db_step}")
