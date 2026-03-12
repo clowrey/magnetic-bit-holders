@@ -1,6 +1,6 @@
 # Magnetic Bit Holder (build123d)
 
-![2D cutaway preview](exports/linear_bit_holder_10bit_cutaway.jpg)
+![Sliced double-back preview](sliced-double-back.png)
 
 Parametric linear 1/4 in bit holder generator.
 
