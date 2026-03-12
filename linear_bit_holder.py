@@ -12,6 +12,7 @@ from build123d import (
     BuildSketch,
     Cone,
     Cylinder,
+    FontStyle,
     GeomType,
     Locations,
     Mode,
@@ -24,6 +25,15 @@ from build123d import (
     chamfer,
     fillet,
 )
+
+# Build toggles
+BUILD_SINGLE_10_BIT = True
+BUILD_BATCH_10_TO_30 = False
+BUILD_METRIC_LABELED = True
+
+BATCH_START = 10
+BATCH_STOP = 30
+BATCH_STEP = 2
 
 
 @dataclass
@@ -47,9 +57,8 @@ class BitHolderParams:
     end_wall_thickness: float = 1.6
     outer_edge_radius: float = 2.0
     bit_entry_bevel: float = 0.0
-    side_label_font_size: float = 2.8
+    side_label_font_size: float = 8.0
     side_label_depth: float = 0.45
-    side_label_z: float = 4.5
 
 
 def build_linear_bit_holder(params: BitHolderParams):
@@ -189,7 +198,7 @@ def add_side_debossed_labels(part, params: BitHolderParams, labels: list[str]):
     center_spacing, _, body_width, body_height = _holder_dimensions(params)
     x_start = -0.5 * (params.bit_count - 1) * center_spacing
     y_face = 0.5 * body_width
-    z_text = min(max(params.side_label_z, 1.0), body_height - 1.0)
+    z_text = 0.5 * body_height
 
     with BuildPart() as labeled:
         add(part)
@@ -200,7 +209,9 @@ def add_side_debossed_labels(part, params: BitHolderParams, labels: list[str]):
                     Text(
                         txt=label,
                         font_size=params.side_label_font_size,
+                        font_style=FontStyle.BOLD,
                         align=(Align.CENTER, Align.CENTER),
+                        rotation=90,
                     )
         extrude(amount=-params.side_label_depth, mode=Mode.SUBTRACT)
 
@@ -435,7 +446,13 @@ def export_cutaway_jpg(svg_path: str, jpg_path: str) -> None:
 
 if __name__ == "__main__":
     base = BitHolderParams()
-    for bit_count in range(10, 31, 2):
+    standard_counts: list[int] = []
+    if BUILD_SINGLE_10_BIT:
+        standard_counts.append(10)
+    if BUILD_BATCH_10_TO_30:
+        standard_counts.extend(range(BATCH_START, BATCH_STOP + 1, BATCH_STEP))
+
+    for bit_count in sorted(set(standard_counts)):
         p = replace(base, bit_count=bit_count)
         part = build_linear_bit_holder(p)
         stem = f"linear_bit_holder_{bit_count}bit"
@@ -480,14 +497,15 @@ if __name__ == "__main__":
         "7",
         "8",
     ]
-    metric_params = replace(base, bit_count=len(metric_hex_labels))
-    metric_part = build_linear_bit_holder(metric_params)
-    metric_labeled = add_side_debossed_labels(metric_part, metric_params, metric_hex_labels)
-    metric_stem = "linear_bit_holder_11bit_metric_hex_labeled"
-    export_stl(metric_labeled, f"{metric_stem}.stl")
-    export_step(metric_labeled, f"{metric_stem}.step")
-    print("Metric labeled variant generated:")
-    print(f"- bit_count: {metric_params.bit_count}")
-    print(f"- side labels: {', '.join(metric_hex_labels)}")
-    print(f"- STL exported to: {metric_stem}.stl")
-    print(f"- STEP exported to: {metric_stem}.step")
+    if BUILD_METRIC_LABELED:
+        metric_params = replace(base, bit_count=len(metric_hex_labels))
+        metric_part = build_linear_bit_holder(metric_params)
+        metric_labeled = add_side_debossed_labels(metric_part, metric_params, metric_hex_labels)
+        metric_stem = "linear_bit_holder_11bit_metric_hex_labeled"
+        export_stl(metric_labeled, f"{metric_stem}.stl")
+        export_step(metric_labeled, f"{metric_stem}.step")
+        print("Metric labeled variant generated:")
+        print(f"- bit_count: {metric_params.bit_count}")
+        print(f"- side labels: {', '.join(metric_hex_labels)}")
+        print(f"- STL exported to: {metric_stem}.stl")
+        print(f"- STEP exported to: {metric_stem}.step")
