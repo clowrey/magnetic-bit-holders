@@ -9,11 +9,16 @@ from build123d import (
     Axis,
     Box,
     BuildPart,
+    BuildSketch,
     Cone,
     Cylinder,
     GeomType,
     Locations,
     Mode,
+    Plane,
+    Text,
+    add,
+    extrude,
     export_step,
     export_stl,
     chamfer,
@@ -26,7 +31,7 @@ class BitHolderParams:
     # Count and core hole geometry
     bit_count: int = 20
     bit_cavity_diameter: float = 7.6
-    bit_cavity_depth: float = 16.0
+    bit_cavity_depth: float = 13.0 # 13mm is max depth for some short bits that get wider after 13mm 
 
     # Magnet pocket geometry (for nominal 6x3 mm magnets)
     magnet_pocket_diameter: float = 6.1
@@ -42,6 +47,9 @@ class BitHolderParams:
     end_wall_thickness: float = 1.6
     outer_edge_radius: float = 2.0
     bit_entry_bevel: float = 0.0
+    side_label_font_size: float = 2.8
+    side_label_depth: float = 0.45
+    side_label_z: float = 4.5
 
 
 def build_linear_bit_holder(params: BitHolderParams):
@@ -169,6 +177,34 @@ def _holder_dimensions(params: BitHolderParams) -> tuple[float, float, float, fl
         params.bit_cavity_depth + params.magnet_pocket_depth + params.bottom_floor_thickness
     )
     return center_spacing, body_length, body_width, body_height
+
+
+def add_side_debossed_labels(part, params: BitHolderParams, labels: list[str]):
+    """Deboss text labels into the +Y side wall at each cavity center."""
+    if len(labels) != params.bit_count:
+        raise ValueError("labels count must match bit_count")
+    if params.side_label_depth <= 0:
+        raise ValueError("side_label_depth must be > 0")
+
+    center_spacing, _, body_width, body_height = _holder_dimensions(params)
+    x_start = -0.5 * (params.bit_count - 1) * center_spacing
+    y_face = 0.5 * body_width
+    z_text = min(max(params.side_label_z, 1.0), body_height - 1.0)
+
+    with BuildPart() as labeled:
+        add(part)
+        with BuildSketch(Plane.XZ.offset(y_face)):
+            for i, label in enumerate(labels):
+                x = x_start + i * center_spacing
+                with Locations((x, z_text)):
+                    Text(
+                        txt=label,
+                        font_size=params.side_label_font_size,
+                        align=(Align.CENTER, Align.CENTER),
+                    )
+        extrude(amount=-params.side_label_depth, mode=Mode.SUBTRACT)
+
+    return labeled.part
 
 
 def export_cutaway_svg(params: BitHolderParams, out_path: str) -> None:
@@ -430,3 +466,28 @@ if __name__ == "__main__":
         print(f"- STEP exported to: {step_path}")
         print(f"- 2D cutaway exported to: {svg_path}")
         print(f"- 2D cutaway exported to: {jpg_path}")
+
+    metric_hex_labels = [
+        "1.5",
+        "2",
+        "2.5",
+        "3",
+        "3.5",
+        "4",
+        "5",
+        "5.5",
+        "6",
+        "7",
+        "8",
+    ]
+    metric_params = replace(base, bit_count=len(metric_hex_labels))
+    metric_part = build_linear_bit_holder(metric_params)
+    metric_labeled = add_side_debossed_labels(metric_part, metric_params, metric_hex_labels)
+    metric_stem = "linear_bit_holder_11bit_metric_hex_labeled"
+    export_stl(metric_labeled, f"{metric_stem}.stl")
+    export_step(metric_labeled, f"{metric_stem}.step")
+    print("Metric labeled variant generated:")
+    print(f"- bit_count: {metric_params.bit_count}")
+    print(f"- side labels: {', '.join(metric_hex_labels)}")
+    print(f"- STL exported to: {metric_stem}.stl")
+    print(f"- STEP exported to: {metric_stem}.step")

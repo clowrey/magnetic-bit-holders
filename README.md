@@ -4,6 +4,8 @@ Parametric linear 1/4 in bit holder generator.
 
 Designed for `6x3 mm` neodymium magnets: each cavity includes a magnet pocket and entry bevel so magnets can be press-fit after printing, using a 1/4 in bit (or similar blunt tool) to push each magnet to final depth.
 
+The 6x3 mm press-in magnet concept is inspired by this model: [Magnetic bit holder for 1/4" hex allen bits - metric](https://www.printables.com/model/787301-magnetic-bit-holder-for-14-hex-allen-bits-metric).
+
 License: GNU GPL v3.0 (see `LICENSE`).
 
 ## Quick Use
