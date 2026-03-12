@@ -30,6 +30,9 @@ from build123d import (
 BUILD_SINGLE_10_BIT = True
 BUILD_BATCH_10_TO_30 = False
 BUILD_METRIC_LABELED = True
+BUILD_ENGLISH_LABELED = True
+BUILD_METRIC_DOUBLEBACK_LABELED = True
+BUILD_ENGLISH_DOUBLEBACK_LABELED = True
 
 BATCH_START = 10
 BATCH_STOP = 30
@@ -57,7 +60,7 @@ class BitHolderParams:
     end_wall_thickness: float = 1.6
     outer_edge_radius: float = 2.0
     bit_entry_bevel: float = 0.0
-    side_label_font_size: float = 8.0
+    side_label_font_size: float = 7.0
     side_label_depth: float = 0.45
 
 
@@ -188,6 +191,53 @@ def _holder_dimensions(params: BitHolderParams) -> tuple[float, float, float, fl
     return center_spacing, body_length, body_width, body_height
 
 
+def _measure_label_span(label: str, font_size: float) -> tuple[float, float]:
+    """Measure rotated label span on the sketch plane (X, Y)."""
+    with BuildSketch() as sketch:
+        Text(
+            txt=label,
+            font_size=font_size,
+            font_style=FontStyle.BOLD,
+            align=(Align.CENTER, Align.CENTER),
+            rotation=90,
+        )
+    bb = sketch.sketch.bounding_box()
+    return bb.size.X, bb.size.Y
+
+
+def _auto_fit_side_label_font_size(
+    labels: list[str],
+    requested_font_size: float,
+    center_spacing: float,
+    body_height: float,
+) -> float:
+    """
+    Reduce side-label font size until it fits:
+    - inside holder height (no top/bottom overlap)
+    - within cavity pitch in X (no label-to-label overlap)
+    """
+    max_font = max(0.5, requested_font_size)
+    min_font = 1.5
+    step = 0.1
+    avail_x = center_spacing - 0.6
+    avail_y = body_height - 1.0
+
+    steps = max(1, int(round((max_font - min_font) / step)))
+    for i in range(steps + 1):
+        size = max_font - i * step
+        if size < min_font:
+            break
+        max_x = 0.0
+        max_y = 0.0
+        for label in labels:
+            sx, sy = _measure_label_span(label, size)
+            max_x = max(max_x, sx)
+            max_y = max(max_y, sy)
+        if max_x <= avail_x and max_y <= avail_y:
+            return round(size, 2)
+    return min_font
+
+
 def add_side_debossed_labels(part, params: BitHolderParams, labels: list[str]):
     """Deboss text labels into the +Y side wall at each cavity center."""
     if len(labels) != params.bit_count:
@@ -214,6 +264,142 @@ def add_side_debossed_labels(part, params: BitHolderParams, labels: list[str]):
                         rotation=90,
                     )
         extrude(amount=-params.side_label_depth, mode=Mode.SUBTRACT)
+
+    return labeled.part
+
+
+def build_doubleback_bit_holder(
+    params: BitHolderParams, columns: int = 6, rows: int = 2
+):
+    """Build a connected multi-row holder (double-back style)."""
+    if columns < 1 or rows < 1:
+        raise ValueError("columns and rows must be >= 1")
+
+    center_spacing = params.bit_cavity_diameter + params.spacing_between_hole_ods
+    body_length = (
+        2 * params.end_wall_thickness
+        + columns * params.bit_cavity_diameter
+        + (columns - 1) * params.spacing_between_hole_ods
+    )
+    body_width = (
+        2 * params.side_wall_thickness
+        + rows * params.bit_cavity_diameter
+        + (rows - 1) * params.spacing_between_hole_ods
+    )
+    body_height = (
+        params.bit_cavity_depth + params.magnet_pocket_depth + params.bottom_floor_thickness
+    )
+
+    x_start = -0.5 * (columns - 1) * center_spacing
+    y_start = -0.5 * (rows - 1) * center_spacing
+    top_z = body_height
+
+    with BuildPart() as holder:
+        Box(
+            body_length,
+            body_width,
+            body_height,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+
+        for row in range(rows):
+            y = y_start + row * center_spacing
+            for col in range(columns):
+                x = x_start + col * center_spacing
+
+                with Locations((x, y, top_z)):
+                    Cylinder(
+                        radius=0.5 * params.bit_cavity_diameter,
+                        height=params.bit_cavity_depth,
+                        align=(Align.CENTER, Align.CENTER, Align.MAX),
+                        mode=Mode.SUBTRACT,
+                    )
+
+                magnet_cyl_depth = params.magnet_pocket_depth - params.magnet_bevel_depth
+                with Locations((x, y, top_z - params.bit_cavity_depth)):
+                    Cylinder(
+                        radius=0.5 * params.magnet_pocket_diameter,
+                        height=magnet_cyl_depth,
+                        align=(Align.CENTER, Align.CENTER, Align.MAX),
+                        mode=Mode.SUBTRACT,
+                    )
+
+                if params.magnet_bevel_depth > 0:
+                    with Locations((x, y, top_z - params.bit_cavity_depth)):
+                        Cone(
+                            top_radius=0.5 * params.bit_cavity_diameter,
+                            bottom_radius=0.5 * params.magnet_pocket_diameter,
+                            height=params.magnet_bevel_depth,
+                            align=(Align.CENTER, Align.CENTER, Align.MAX),
+                            mode=Mode.SUBTRACT,
+                        )
+
+        half_length = 0.5 * body_length
+        half_width = 0.5 * body_width
+        eps = 1e-6
+        outer_edges = []
+        for edge in holder.edges():
+            c = edge.center()
+            on_x_side = abs(abs(c.X) - half_length) < eps
+            on_y_side = abs(abs(c.Y) - half_width) < eps
+            on_bottom = abs(c.Z) < eps
+            on_top = abs(c.Z - top_z) < eps
+            if (on_x_side and on_y_side) or (on_x_side and (on_bottom or on_top)) or (
+                on_y_side and (on_bottom or on_top)
+            ):
+                outer_edges.append(edge)
+
+        if params.outer_edge_radius > 0 and outer_edges:
+            fillet(outer_edges, params.outer_edge_radius)
+
+        top_planar_faces = [
+            f
+            for f in holder.faces()
+            if f.geom_type == GeomType.PLANE and abs(f.center().Z - top_z) < eps
+        ]
+        top_hole_edges = []
+        for face in top_planar_faces:
+            top_hole_edges.extend(
+                [e for e in face.edges() if e.geom_type == GeomType.CIRCLE]
+            )
+        if params.bit_entry_bevel > 0 and top_hole_edges:
+            chamfer(top_hole_edges, params.bit_entry_bevel)
+
+    x_positions = [x_start + col * center_spacing for col in range(columns)]
+    return holder.part, x_positions, body_width, body_height
+
+
+def add_side_debossed_labels_on_edge(
+    part,
+    params: BitHolderParams,
+    labels: list[str],
+    x_positions: list[float],
+    body_width: float,
+    body_height: float,
+    side: int,
+):
+    """Deboss labels on +Y or -Y long outer edge."""
+    if side not in (-1, 1):
+        raise ValueError("side must be -1 or 1")
+    if len(labels) != len(x_positions):
+        raise ValueError("labels count must match x_positions count")
+
+    y_face = side * 0.5 * body_width
+    z_text = 0.5 * body_height
+
+    with BuildPart() as labeled:
+        add(part)
+        with BuildSketch(Plane.XZ.offset(y_face)):
+            for x, label in zip(x_positions, labels):
+                with Locations((x, z_text)):
+                    Text(
+                        txt=label,
+                        font_size=params.side_label_font_size,
+                        font_style=FontStyle.BOLD,
+                        align=(Align.CENTER, Align.CENTER),
+                        rotation=90 if side > 0 else -90,
+                    )
+        extrude(amount=-side * params.side_label_depth, mode=Mode.SUBTRACT)
 
     return labeled.part
 
@@ -509,3 +695,149 @@ if __name__ == "__main__":
         print(f"- side labels: {', '.join(metric_hex_labels)}")
         print(f"- STL exported to: {metric_stem}.stl")
         print(f"- STEP exported to: {metric_stem}.step")
+
+    english_hex_labels = [
+        "5/64",
+        "3/32",
+        "7/64",
+        "1/8",
+        "9/64",
+        "5/32",
+        "3/16",
+        "7/32",
+        "1/4",
+        "5/16",
+    ]
+    if BUILD_ENGLISH_LABELED:
+        english_params = replace(base, bit_count=len(english_hex_labels))
+        english_center_spacing, _, _, english_height = _holder_dimensions(english_params)
+        fitted_english_font = _auto_fit_side_label_font_size(
+            english_hex_labels,
+            english_params.side_label_font_size,
+            english_center_spacing,
+            english_height,
+        )
+        english_params = replace(english_params, side_label_font_size=fitted_english_font)
+        english_part = build_linear_bit_holder(english_params)
+        english_labeled = add_side_debossed_labels(
+            english_part, english_params, english_hex_labels
+        )
+        english_stem = "linear_bit_holder_10bit_english_hex_labeled"
+        export_stl(english_labeled, f"{english_stem}.stl")
+        export_step(english_labeled, f"{english_stem}.step")
+        print("English labeled variant generated:")
+        print(f"- bit_count: {english_params.bit_count}")
+        print(f"- fitted label font size: {english_params.side_label_font_size}")
+        print(f"- side labels: {', '.join(english_hex_labels)}")
+        print(f"- STL exported to: {english_stem}.stl")
+        print(f"- STEP exported to: {english_stem}.step")
+
+    if BUILD_METRIC_DOUBLEBACK_LABELED:
+        # Assumes common metric progression and adds 10 mm as the 12th size.
+        doubleback_labels = [
+            "1.5",
+            "2",
+            "2.5",
+            "3",
+            "3.5",
+            "4",
+            "5",
+            "5.5",
+            "6",
+            "7",
+            "8",
+            "10",
+        ]
+        doubleback_params = replace(base, bit_count=len(doubleback_labels))
+        doubleback_part, x_positions, db_width, db_height = build_doubleback_bit_holder(
+            doubleback_params, columns=6, rows=2
+        )
+        side_a_labels = doubleback_labels[0::2]
+        side_b_labels = doubleback_labels[1::2]
+        doubleback_labeled = add_side_debossed_labels_on_edge(
+            doubleback_part,
+            doubleback_params,
+            side_a_labels,
+            x_positions,
+            db_width,
+            db_height,
+            side=1,
+        )
+        doubleback_labeled = add_side_debossed_labels_on_edge(
+            doubleback_labeled,
+            doubleback_params,
+            side_b_labels,
+            x_positions,
+            db_width,
+            db_height,
+            side=-1,
+        )
+        doubleback_stem = "linear_bit_holder_12bit_metric_hex_doubleback_labeled"
+        export_stl(doubleback_labeled, f"{doubleback_stem}.stl")
+        export_step(doubleback_labeled, f"{doubleback_stem}.step")
+        print("Metric double-back labeled variant generated:")
+        print("- layout: 2 rows x 6 columns (12 total)")
+        print(f"- +Y side labels: {', '.join(side_a_labels)}")
+        print(f"- -Y side labels: {', '.join(side_b_labels)}")
+        print(f"- STL exported to: {doubleback_stem}.stl")
+        print(f"- STEP exported to: {doubleback_stem}.step")
+
+    if BUILD_ENGLISH_DOUBLEBACK_LABELED:
+        english_doubleback_labels = [
+            "5/64",
+            "3/32",
+            "7/64",
+            "1/8",
+            "9/64",
+            "5/32",
+            "3/16",
+            "7/32",
+            "1/4",
+            "5/16",
+        ]
+        english_db_params = replace(base, bit_count=len(english_doubleback_labels))
+        english_db_part, english_x_positions, english_db_width, english_db_height = (
+            build_doubleback_bit_holder(english_db_params, columns=5, rows=2)
+        )
+        english_db_center_spacing = (
+            english_db_params.bit_cavity_diameter + english_db_params.spacing_between_hole_ods
+        )
+        fitted_english_db_font = _auto_fit_side_label_font_size(
+            english_doubleback_labels,
+            english_db_params.side_label_font_size,
+            english_db_center_spacing,
+            english_db_height,
+        )
+        english_db_params = replace(
+            english_db_params, side_label_font_size=fitted_english_db_font
+        )
+        side_a_labels = english_doubleback_labels[0::2]
+        side_b_labels = english_doubleback_labels[1::2]
+        english_db_labeled = add_side_debossed_labels_on_edge(
+            english_db_part,
+            english_db_params,
+            side_a_labels,
+            english_x_positions,
+            english_db_width,
+            english_db_height,
+            side=1,
+        )
+        english_db_labeled = add_side_debossed_labels_on_edge(
+            english_db_labeled,
+            english_db_params,
+            side_b_labels,
+            english_x_positions,
+            english_db_width,
+            english_db_height,
+            side=-1,
+        )
+        english_db_stem = "linear_bit_holder_10bit_english_hex_doubleback_labeled"
+        export_stl(english_db_labeled, f"{english_db_stem}.stl")
+        export_step(english_db_labeled, f"{english_db_stem}.step")
+        print("English double-back labeled variant generated:")
+        print("- layout: 2 rows x 5 columns (10 total)")
+        print(f"- fitted label font size: {english_db_params.side_label_font_size}")
+        print(f"- +Y side labels: {', '.join(side_a_labels)}")
+        print(f"- -Y side labels: {', '.join(side_b_labels)}")
+        print(f"- STL exported to: {english_db_stem}.stl")
+        print(f"- STEP exported to: {english_db_stem}.step")
