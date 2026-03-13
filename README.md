@@ -1,6 +1,6 @@
 # Magnetic Bit Holder (build123d)
 
-![Printed example](printed2.jpg)
+![Printed example](printed_0_08.jpg)
 
 Parametric linear 1/4 in bit holder generator.
 
@@ -28,5 +28,3 @@ License: GNU GPL v3.0 (see `LICENSE`).
 ## Printed / Sliced Examples
 
 ![Sliced double-back preview](sliced-double-back.png)
-
-![Printed example](printed1.jpg)
